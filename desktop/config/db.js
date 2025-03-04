@@ -6,7 +6,7 @@ const dbPath = process.env.NODE_ENV === 'production'
   ? path.join(process.resourcesPath, 'newDatabase.db') // Packaged app
   : path.join(__dirname,  '../newDatabase.db'); // Development
   console.log('Using database at:', dbPath);
-// Initialize the database
+// Initializing the database 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Database connection error:', err.message);
