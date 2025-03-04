@@ -1,0 +1,59 @@
+{
+  "name": "fast-proforma",
+  "version": "1.0.0",
+  "description": "This is a advanced application to handle and manage spare part company proforma",
+  "main": "main.js",
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "build-frontend": "cd frontend && npm run build",
+    "package-wind": "electron-packager . fast-proforma --platform=win32 --arch=x64 --out=dist --overwrite --no-asar --extra-resource=proforma.db",
+    "rebuild": "electron-rebuild -f -w sqlite3,bcrypt",
+    "pack": "set NODE_ENV=production && electron-packager . Fast-Proforma --overwrite --asar=false --extra-resource=newDatabase.db --platform=win32 --arch=x64  --icon=assets/icons/win/icon.ico --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Fast-Proforma\"",
+    "package-win": "set NODE_ENV=production && electron-packager . Fast-Proforma --overwrite --asar=false --extra-resource=newDatabase.db --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Fast-Proforma\"",
+    "dist": " electron-builder",
+    "start": "electron .  --disable-http-cache"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^34.2.0",
+    "electron-builder": "^25.1.8",
+    "electron-packager": "^17.1.2"
+  },
+  "dependencies": {
+    "axios": "^1.8.1",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "electron-is-dev": "^3.0.1",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "next": "^15.2.1-canary.4",
+    "sqlite3": "^5.1.6"
+  },
+  "build": {
+    "appId": "com.example.fastproforma",
+    "productName": "Fast-Proforma",
+    "asar": false,
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icons/win/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "files": [
+      "backend/**/*",
+      "main.js",
+      "preload.js",
+      "frontend/dist/**/*"
+    ],
+    "extraResources": [
+      "newDatabase.db"
+    ]
+  }
+}
