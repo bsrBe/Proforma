@@ -3,18 +3,33 @@
 
 import {  LogOut } from "lucide-react";
 import { logout } from "@/lib/electronUtils";
-
+import { toast } from "sonner";
 
 const Navbar = () => {
     const handleLogout = async () => {
         try {
-            // Call the Server Action to log out
-            await logout();
-        } catch (error) {
-            console.error("Logout failed:", error);
-        }
-    };
-
+            const result = await logout();
+      if (result.success) {
+        toast.success("Logged out successfully!", {
+          style: {
+            backgroundColor: "#00cc00",
+            color: "#ffffff",
+            border: "none",
+          },
+        });
+        // Force a full page refresh to reset app state
+        window.location.href = "/auth/login";
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error("Failed to log out. Please try again.", {
+        style: {
+          backgroundColor: "#ff4444",
+          color: "#ffffff",
+          border: "none",
+        },
+      });
+    }}
     return (
         <div className="flex justify-end align-middle m-2">
             {/* <ModeToggle /> */}

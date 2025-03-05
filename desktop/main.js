@@ -37,7 +37,10 @@ async function startNextServer() {
 function createWindow() {
       
   mainWindow = new BrowserWindow({
-    maximized: true,
+    width: 1920, // Typical full HD width
+    height: 1080,
+    minWidth: 1100, 
+    minHeight: 800,
     title: 'Fast-Proforma',
     webPreferences: {
       nodeIntegration: false,
@@ -45,8 +48,8 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-
-
+  mainWindow.maximize();
+  mainWindow.setMenu(null);
   setTimeout(() => {
     mainWindow.loadURL('http://localhost:3000').catch((err) => {
       console.error('Failed to load Next.js app:', err);
@@ -69,26 +72,53 @@ app.whenReady().then(async () => {
   startBackupScheduler();
 
   //     // --- IPC Handlers ---
-    ipcMain.handle('create-proforma', async (event, proformaData) => {
-        try {
-            const newProforma = await createProforma(proformaData);
-            return newProforma;
-        } catch (error) {
-            console.error('Error creating proforma:', error);
-            throw error;
-        }
-    });
+  ipcMain.handle('create-proforma', async (event, proformaData) => {
+    try {
+      const cookies = await session.defaultSession.cookies.get({ name: 'authToken' });
+      if (cookies.length === 0) {
+        throw new Error('Authentication token is required');
+      }
+      const token = cookies[0].value;
+  
+      const decoded = jwt.verify(token, JWT_SECRET);
+      console.log('main.js: Decoded token:', decoded);
+  
+      const user = await findUser(decoded.usernameOrEmail);
+      if (!user) {
+        throw new Error('User not found');
+      }
+  
+      const newProforma = await createProforma(proformaData, user.id);
+      return newProforma;
+    } catch (error) {
+      console.error('Error creating proforma:', error);
+      throw error;
+    }
+  });
 
-    ipcMain.handle('get-proformas', async (event , ) => {
-        try {
-            const proformas = await getAllProformas();
-            return proformas;
-        } catch (error) {
-            console.error('Error getting proformas:', error);
-            throw error;
-        }
-    });
-    
+  ipcMain.handle('get-proformas', async (event) => {
+    try {
+      const cookies = await session.defaultSession.cookies.get({ name: 'authToken' });
+      if (cookies.length === 0) {
+        throw new Error('Authentication token is required');
+      }
+      const token = cookies[0].value;
+  
+      const decoded = jwt.verify(token, JWT_SECRET);
+      console.log('main.js: Decoded token:', decoded);
+  
+      const user = await findUser(decoded.usernameOrEmail);
+      if (!user) {
+        throw new Error('User not found');
+      }
+  
+      const proformas = await getAllProformas(user.id);
+      return proformas;
+    } catch (error) {
+      console.error('Error getting proformas:', error);
+      throw error;
+    }
+  });
    
     ipcMain.handle('get-proforma-by-id', async (event, id) => {
         try {
@@ -192,7 +222,7 @@ app.whenReady().then(async () => {
           if (cookies.length > 0) {
             return cookies[0].value;
           }
-          throw new Error('No authentication token found');
+          console.log("LOG IN");
         } catch (error) {
           console.error('main.js: Error getting auth token:', error);
           throw error;
@@ -216,7 +246,18 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
-
+app.on('will-quit', async (event) => {
+  try {
+    // Prevent quitting until cookies are cleared
+    event.preventDefault();
+    await session.defaultSession.clearStorageData();
+    console.log('main.js: Cleared all session data on app quit');
+    app.exit(); // Proceed with quitting
+  } catch (error) {
+    console.error('main.js: Error clearing session data on quit:', error);
+    app.exit(); // Quit even if there's an error
+  }
+});
 app.on('activate', () => {
     if (mainWindow === null) {
         createWindow();

@@ -43,6 +43,6 @@ const findUser = async (usernameOrEmail) => {
       }
     );
   });
-};;
+};
 
 module.exports = { createUser, findUser };

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+
+
 import {
   Form,
   FormControl,
@@ -89,7 +91,7 @@ const SignupForm = () => {
   }
 
   return (
-    <div className="rounded-lg">
+    <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="pb-8">
         <p className="font-semibold dark:text-slate-300 text-2xl text-slate-700 font-sans">
           Create an Account

@@ -9,7 +9,7 @@ db.run(`
     unitPrice REAL,
     totalPrice REAL, 
     lastModified TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-    FOREIGN KEY(proformaId) REFERENCES proformas(id) ON DELETE CASCADE,
+    FOREIGN KEY(proformaId) REFERENCES proformas(id) ON DELETE CASCADE
   )
 `);
 module.exports = db;
